@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net8.0</TargetFrameworks>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageId>NDB.CodeGen.EF</PackageId>
+		<Version>1.0.0</Version>
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<FileVersion>1.0.0.0</FileVersion>
+		<InformationalVersion>1.0.0</InformationalVersion>
+		<Authors>Ilyasin Hafid</Authors>
+		<Company>PT Navigate Digital Boundaries</Company>
+
+		<IsPackable>true</IsPackable>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+
+		<Description>EF Core Design</Description>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/ndbco/NDB.CodeGen.EF</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/ndbco/NDB.CodeGen.EF</PackageProjectUrl>
+	</PropertyGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.*" PrivateAssets="all" />
+		<PackageReference Include="EntityFrameworkCore.Scaffolding.Handlebars" Version="8.*" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<EmbeddedResource Include="CodeTemplates\CodeGen\Templates\*.tpl" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<None Include="..\README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
+	
+</Project>
