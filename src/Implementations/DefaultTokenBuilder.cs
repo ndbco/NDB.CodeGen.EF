@@ -23,10 +23,13 @@ public sealed class DefaultTokenBuilder : ITokenBuilder
         string modelNs)
     {
         var pk = entity.TryGetPrimaryKeyProperty();
-
+        string namespaces = contextNs;
+        int index_namespace = contextNs.LastIndexOf('.');
+        if (index_namespace >=0)
+            namespaces= contextNs.Substring(0, index_namespace);
         return new()
         {
-            ["ns"] = contextNs.Split('.').First(),
+            ["ns"] = namespaces,
             ["modelNs"] = modelNs,
             ["Entity"] = entity.Name,
             ["PkName"] = pk?.Name ?? "",
