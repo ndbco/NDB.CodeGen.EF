@@ -23,7 +23,6 @@ namespace {{ns}}.API.Controllers
 
         [HttpPost(template: "export")]
         public async Task<Result> Export([FromBody] ListRequest request) => await _mediator.Send(new Export{{Entity}}Query(request));
-{{>block}}                  
         [HttpPost(template: "add")]
         public async Task<Result> Add([FromBody] Add{{Entity}}Command command) => await _mediator.Send(command); 
 
@@ -32,7 +31,7 @@ namespace {{ns}}.API.Controllers
 
         [HttpDelete(template: "delete/{id}")]
         public async Task<Result> Delete({{PkType}} id)=> await _mediator.Send(new Delete{{Entity}}Command(id));
-
+{{>block}}                  
         [HttpPut(template: "active/{id}/{value}")]
         public async Task<Result> Active({{PkType}} id, bool value) => await _mediator.Send(new Active{{Entity}}Command(id, value));
 {{<block}}

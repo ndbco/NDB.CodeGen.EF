@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using NDB.CodeGen.EF.Abstractions;
 using System.ComponentModel.DataAnnotations;
 
@@ -6,6 +7,11 @@ namespace NDB.CodeGen.EF.Implementations;
 
 public sealed class DefaultAttributeBuilder : IAttributeBuilder
 {
+    private readonly IEntityRule _entityRule;
+    public DefaultAttributeBuilder(IEntityRule entityRule)
+    {
+        _entityRule = entityRule;
+    }
     public string BuildAdd(IEntityType entity)
         => Build(entity, p => $"                    {p.Name} = request.{p.Name},");
 
@@ -14,12 +20,12 @@ public sealed class DefaultAttributeBuilder : IAttributeBuilder
 
     public string BuildContract(IEntityType entity)
         => string.Join(Environment.NewLine,
-            entity.GetProperties()
+            entity.GetProperties().OrderBy(p => p.GetColumnOrder() ?? int.MaxValue)
                 .Select(p => $"              nameof(Data.Model.{entity.Name}.{p.Name}),"));
 
     public string BuildResponse(IEntityType entity)
         => string.Join(Environment.NewLine,
-            entity.GetProperties()
+            entity.GetProperties().OrderBy(p => p.GetColumnOrder() ?? int.MaxValue)
                 .Select(p =>
                 {
                     var t = ParseType(p.ClrType);
@@ -30,8 +36,11 @@ public sealed class DefaultAttributeBuilder : IAttributeBuilder
     public string BuildRequest(IEntityType entity)
     {
         var lines = new List<string>();
-        foreach (var p in entity.GetProperties())
+        foreach (var p in entity.GetProperties().OrderBy(p => p.GetColumnOrder() ?? int.MaxValue))
         {
+            if (_entityRule.IsExcluded(p.Name))
+                continue;
+
             if (!p.IsNullable)
                 lines.Add("        [Required]");
 
@@ -46,7 +55,7 @@ public sealed class DefaultAttributeBuilder : IAttributeBuilder
     {
         var i = 1;
         var lines = new List<string>();
-        foreach (var p in entity.GetProperties())
+        foreach (var p in entity.GetProperties().OrderBy(p => p.GetColumnOrder() ?? int.MaxValue))
         {
             var t = ParseType(p.ClrType);
             var n = p.IsNullable && t != "string" ? "?" : "";
@@ -72,9 +81,10 @@ public sealed class DefaultAttributeBuilder : IAttributeBuilder
         return t.Name;
     }
 
-    private static string Build(
+    private string Build(
         IEntityType entity,
         Func<IProperty, string> map)
         => string.Join(Environment.NewLine,
-            entity.GetProperties().Select(map));
+            entity.GetProperties().Where(p => !_entityRule.IsExcluded(p.Name))
+              .OrderBy(p => p.GetColumnOrder() ?? int.MaxValue).Select(map));
 }

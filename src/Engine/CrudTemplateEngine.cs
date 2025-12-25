@@ -33,6 +33,9 @@ public sealed class CrudTemplateEngine
 
         foreach (var tpl in _templates.GetTemplates())
         {
+            if (!_rule.HasActive(entity) && tpl.Name == "Active")
+                continue;
+
             if (_rule.IsView(entity) && tpl.Type == Models.CrudType.Command)
                 continue;
 
